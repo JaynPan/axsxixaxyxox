@@ -1,4 +1,11 @@
-import React, { FC, ChangeEvent, useEffect, useRef, useMemo } from 'react';
+import React, {
+  FC,
+  ChangeEvent,
+  useEffect,
+  useRef,
+  useMemo,
+  useCallback,
+} from 'react';
 import { filter, fromEvent, switchMap, takeUntil, timer } from 'rxjs';
 import { Button, Input } from './styles';
 
@@ -20,6 +27,13 @@ export const CustomInputNumber: FC<CustomInputNumberProps> = ({
   const inputNumberRef = useRef<HTMLInputElement>(null);
   const currentValueRef = useRef(value);
 
+  const btnDisabledState = useMemo(() => {
+    return {
+      incrementBtn: (typeof max === 'number' && value >= max) || !!disabled,
+      decrementBtn: (typeof min === 'number' && value <= min) || !!disabled,
+    };
+  }, [max, min, value]);
+
   const handleInputOnBlur = (e: ChangeEvent<HTMLInputElement>) => {
     const event: CustomEvent = { ...e };
     const currentVal = Number(e.target.value);
@@ -38,7 +52,6 @@ export const CustomInputNumber: FC<CustomInputNumberProps> = ({
 
   // TODO: modify step behavioral
   const updateCount = (type: 'increment' | 'decrement') => {
-    console.log('update count');
     const currentVal = Number(currentValueRef.current);
 
     if (isNaN(currentVal)) return;
@@ -66,16 +79,8 @@ export const CustomInputNumber: FC<CustomInputNumberProps> = ({
     currentValueRef.current = value;
   }, [value]);
 
-  // Handle increment/decrement button event
-  useEffect(() => {
-    if (!decrementalButtonRef.current || !incrementalButtonRef.current) {
-      throw new Error('button element not found');
-    }
-
-    const toggleButtonSubscription = (
-      buttonRef: HTMLButtonElement,
-      type: 'increment' | 'decrement',
-    ) => {
+  const toggleButtonSubscription = useCallback(
+    (buttonRef: HTMLButtonElement, type: 'increment' | 'decrement') => {
       return fromEvent(buttonRef, 'mousedown')
         .pipe(
           switchMap(() =>
@@ -87,11 +92,41 @@ export const CustomInputNumber: FC<CustomInputNumberProps> = ({
         .subscribe({
           next: () => updateCount(type),
         });
-    };
+    },
+    [],
+  );
 
-    toggleButtonSubscription(decrementalButtonRef.current, 'decrement');
-    toggleButtonSubscription(incrementalButtonRef.current, 'increment');
-  }, []);
+  // Handle increment button event
+  useEffect(() => {
+    if (!incrementalButtonRef.current) {
+      throw new Error('increment button element not found');
+    }
+
+    const subscription = toggleButtonSubscription(
+      incrementalButtonRef.current,
+      'increment',
+    );
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [btnDisabledState.incrementBtn]);
+
+  // Handle decrement button event
+  useEffect(() => {
+    if (!decrementalButtonRef.current) {
+      throw new Error('decrement button element not found');
+    }
+
+    const subscription = toggleButtonSubscription(
+      decrementalButtonRef.current,
+      'decrement',
+    );
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [btnDisabledState.decrementBtn]);
 
   // handle input ArrowUp/ArrowDown key event
   useEffect(() => {
@@ -130,7 +165,7 @@ export const CustomInputNumber: FC<CustomInputNumberProps> = ({
       <Button
         name={`${name}_decrement_button`}
         ref={decrementalButtonRef}
-        disabled={disabled}
+        disabled={btnDisabledState.decrementBtn}
       >
         -
       </Button>
@@ -145,7 +180,7 @@ export const CustomInputNumber: FC<CustomInputNumberProps> = ({
       <Button
         name={`${name}_increment_button`}
         ref={incrementalButtonRef}
-        disabled={disabled}
+        disabled={btnDisabledState.incrementBtn}
       >
         +
       </Button>
