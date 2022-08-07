@@ -1,5 +1,6 @@
-import React, { FC, ChangeEvent, useEffect, useRef } from 'react';
+import React, { FC, ChangeEvent, useEffect, useRef, useMemo } from 'react';
 import { filter, fromEvent, switchMap, takeUntil, timer } from 'rxjs';
+import { Button, Input } from './styles';
 
 import { CustomInputNumberProps, CustomEvent } from './types';
 
@@ -37,6 +38,7 @@ export const CustomInputNumber: FC<CustomInputNumberProps> = ({
 
   // TODO: modify step behavioral
   const updateCount = (type: 'increment' | 'decrement') => {
+    console.log('update count');
     const currentVal = Number(currentValueRef.current);
 
     if (isNaN(currentVal)) return;
@@ -125,14 +127,14 @@ export const CustomInputNumber: FC<CustomInputNumberProps> = ({
 
   return (
     <div>
-      <button
-        name="decrement-button"
+      <Button
+        name={`${name}_decrement_button`}
         ref={decrementalButtonRef}
         disabled={disabled}
       >
         -
-      </button>
-      <input
+      </Button>
+      <Input
         ref={inputNumberRef}
         value={value}
         name={name}
@@ -140,9 +142,13 @@ export const CustomInputNumber: FC<CustomInputNumberProps> = ({
         onBlur={handleInputOnBlur}
         disabled={disabled}
       />
-      <button ref={incrementalButtonRef} disabled={disabled}>
+      <Button
+        name={`${name}_increment_button`}
+        ref={incrementalButtonRef}
+        disabled={disabled}
+      >
         +
-      </button>
+      </Button>
     </div>
   );
 };
