@@ -9,7 +9,7 @@ const H1 = styled.h1`
 const HelloWorld = () => {
     return (
       <H1>
-          Hello World 1
+          Hello World
       </H1>
     );
 }
