@@ -1,13 +1,29 @@
-import React from 'react';
+import React, { useState } from 'react';
 import ReactDOM from 'react-dom';
-import styled from 'styled-components';
 
-const H1 = styled.h1`
-  color: red;
-`;
+import { CustomInputNumber } from './components/CustomInputNumber';
 
-const HelloWorld = () => {
-  return <H1>Hello World</H1>;
+const App = () => {
+  const [count, setCount] = useState<number | string>(1);
+
+  return (
+    <CustomInputNumber
+      min={0}
+      max={20}
+      step={3}
+      value={count}
+      name="test"
+      disabled
+      onChange={(e) => {
+        console.log('onchange', e.target.name, e.target.value);
+        setCount(e.target.value);
+      }}
+      onBlur={(e) => {
+        console.log('onblur', e.target.name, e.target.value);
+        setCount(e.target.value);
+      }}
+    />
+  );
 };
 
-ReactDOM.render(<HelloWorld />, document.getElementById('root'));
+ReactDOM.render(<App />, document.getElementById('root'));
