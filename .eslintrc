@@ -1,0 +1,43 @@
+{
+  "env": {
+    "browser": true,
+    "node": true
+  },
+  "parser": "@typescript-eslint/parser",
+  "extends": [
+    "plugin:@typescript-eslint/recommended",
+    "universe/native",
+    "plugin:prettier/recommended",
+    "plugin:jest-dom/recommended"
+  ],
+  "plugins": ["@typescript-eslint", "jest-dom"],
+  "settings": {
+    "import/resolver": {
+      "node": {
+        "extensions": [".js", ".jsx", ".ts", ".tsx"],
+        "path": "./src"
+      }
+    }
+  },
+  "rules": {
+    // disable the indent rule as it can cause conflict with prettier
+    "indent": "off",
+    "@typescript-eslint/no-explicit-any": "off",
+    "prettier/prettier": [
+      "error",
+      {
+        "singleQuote": true,
+        "trailingComma": "all"
+      }
+    ],
+    "quotes": [
+      "error",
+      "single",
+      {
+        "avoidEscape": true
+      }
+    ],
+    "import/order": 0,
+    "no-unused-vars": 0
+  }
+}
