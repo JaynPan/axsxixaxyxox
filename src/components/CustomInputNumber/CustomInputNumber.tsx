@@ -19,10 +19,6 @@ export const CustomInputNumber: FC<CustomInputNumberProps> = ({
   const inputNumberRef = useRef<HTMLInputElement>(null);
   const currentValueRef = useRef(value);
 
-  const handleInputOnChange = (e: ChangeEvent<HTMLInputElement>) => {
-    onChange(e);
-  };
-
   const handleInputOnBlur = (e: ChangeEvent<HTMLInputElement>) => {
     const event: CustomEvent = { ...e };
     const currentVal = Number(e.target.value);
@@ -140,7 +136,7 @@ export const CustomInputNumber: FC<CustomInputNumberProps> = ({
         ref={inputNumberRef}
         value={value}
         name={name}
-        onChange={handleInputOnChange}
+        onChange={onChange}
         onBlur={handleInputOnBlur}
         disabled={disabled}
       />
