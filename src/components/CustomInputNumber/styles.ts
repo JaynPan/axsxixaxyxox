@@ -1,5 +1,10 @@
 import styled from 'styled-components';
 
+export const Container = styled.div`
+  padding: 8px;
+  display: flex;
+`;
+
 export const Button = styled.button`
   width: 48px;
   height: 48px;
@@ -11,6 +16,10 @@ export const Button = styled.button`
   font-size: 24px;
   cursor: ${({ disabled }) => (disabled ? 'not-allowed' : 'pointer')};
   opacity: ${({ disabled }) => (disabled ? '0.48' : '1')};
+
+  &:hover {
+    background-color: rgb(240, 253, 255);
+  }
 `;
 
 export const Input = styled.input`

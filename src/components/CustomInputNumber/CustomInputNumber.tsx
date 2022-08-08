@@ -7,7 +7,7 @@ import React, {
   useCallback,
 } from 'react';
 import { filter, fromEvent, switchMap, takeUntil, timer } from 'rxjs';
-import { Button, Input } from './styles';
+import { Button, Input, Container } from './styles';
 
 import { CustomInputNumberProps, CustomEvent } from './types';
 
@@ -161,7 +161,7 @@ export const CustomInputNumber: FC<CustomInputNumberProps> = ({
   }, []);
 
   return (
-    <div>
+    <Container>
       <Button
         name={`${name}_decrement_button`}
         ref={decrementalButtonRef}
@@ -184,6 +184,6 @@ export const CustomInputNumber: FC<CustomInputNumberProps> = ({
       >
         +
       </Button>
-    </div>
+    </Container>
   );
 };
