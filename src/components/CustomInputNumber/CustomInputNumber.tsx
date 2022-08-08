@@ -6,11 +6,12 @@ import React, {
   useMemo,
   useCallback,
 } from 'react';
-import { filter, fromEvent, map, switchMap, takeUntil, tap, timer } from 'rxjs';
-import { Button, Input, Container } from './styles';
+import { filter, fromEvent, map, switchMap, takeUntil, timer } from 'rxjs';
+import { AiOutlinePlus, AiOutlineMinus } from 'react-icons/ai';
 
 import { CustomInputNumberProps, CustomEvent } from './types';
 import { isValueBiggerThanMax, isValueLessThanMin } from './utils';
+import { Button, Input, Container } from './styles';
 
 export const CustomInputNumber: FC<CustomInputNumberProps> = ({
   max,
@@ -166,7 +167,7 @@ export const CustomInputNumber: FC<CustomInputNumberProps> = ({
         ref={decrementalButtonRef}
         disabled={btnDisabledState.decrementBtn}
       >
-        -
+        <AiOutlineMinus size={26} />
       </Button>
       <Input
         ref={inputNumberRef}
@@ -181,7 +182,7 @@ export const CustomInputNumber: FC<CustomInputNumberProps> = ({
         ref={incrementalButtonRef}
         disabled={btnDisabledState.incrementBtn}
       >
-        +
+        <AiOutlinePlus size={26} />
       </Button>
     </Container>
   );
