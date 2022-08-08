@@ -29,17 +29,17 @@ export const RoomEditor: FC<RoomEditorProps> = ({
           max={4}
           step={1}
           value={room.adult}
-          name={`room_${room.index}_adult`}
+          name={`room_${room.index}_adult_input`}
           disabled={disabled}
           onChange={(e) => {
-            console.log('onchange', e.target.name, e.target.value);
+            console.log('onChange', e.target.name, e.target.value);
             onChange({
               ...room,
               adult: e.target.value as number,
             });
           }}
           onBlur={(e) => {
-            console.log('onblur', e.target.name, e.target.value);
+            console.log('onBlur', e.target.name, e.target.value);
             onChange({
               ...room,
               adult: e.target.value as number,
@@ -54,17 +54,17 @@ export const RoomEditor: FC<RoomEditorProps> = ({
           max={4}
           step={1}
           value={room.child}
-          name={`room_${room.index}_child`}
+          name={`room_${room.index}_child_input`}
           disabled={disabled}
           onChange={(e) => {
-            console.log('onchange', e.target.name, e.target.value);
+            console.log('onChange', e.target.name, e.target.value);
             onChange({
               ...room,
               child: e.target.value as number,
             });
           }}
           onBlur={(e) => {
-            console.log('onblur', e.target.name, e.target.value);
+            console.log('onBlur', e.target.name, e.target.value);
             onChange({
               ...room,
               child: e.target.value as number,

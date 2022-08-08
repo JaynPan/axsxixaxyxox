@@ -6,10 +6,11 @@ import React, {
   useMemo,
   useCallback,
 } from 'react';
-import { filter, fromEvent, switchMap, takeUntil, timer } from 'rxjs';
+import { filter, fromEvent, map, switchMap, takeUntil, tap, timer } from 'rxjs';
 import { Button, Input, Container } from './styles';
 
 import { CustomInputNumberProps, CustomEvent } from './types';
+import { isValueBiggerThanMax, isValueLessThanMin } from './utils';
 
 export const CustomInputNumber: FC<CustomInputNumberProps> = ({
   max,
@@ -38,41 +39,34 @@ export const CustomInputNumber: FC<CustomInputNumberProps> = ({
     const event: CustomEvent = { ...e };
     const currentVal = Number(e.target.value);
 
-    // before executing onBlur callback function, will validate the input value
+    // before executing onBlur callback function, will modify to a valid input value
     if (isNaN(currentVal)) {
       event.target.value = min || 0;
-    } else if (typeof max === 'number' && currentVal > max) {
-      event.target.value = max;
-    } else if (typeof min === 'number' && currentVal < min) {
-      event.target.value = min;
+    } else if (isValueBiggerThanMax(max, currentVal)) {
+      event.target.value = max as number;
+    } else if (isValueLessThanMin(min, currentVal)) {
+      event.target.value = min as number;
     }
 
     onBlur(event);
   };
 
-  // TODO: modify step behavioral
-  const updateCount = (type: 'increment' | 'decrement') => {
+  const updateCount = (e: any, type: 'increment' | 'decrement') => {
     const currentVal = Number(currentValueRef.current);
 
     if (isNaN(currentVal)) return;
 
-    const nextValue =
+    let nextValue =
       type === 'increment' ? currentVal + step : currentVal - step;
 
-    if (
-      (typeof min === 'number' && nextValue < min) ||
-      (typeof max === 'number' && nextValue > max)
-    )
-      return;
+    if (isValueLessThanMin(min, currentVal)) {
+      nextValue = min as number;
+    } else if (isValueBiggerThanMax(max, currentVal)) {
+      nextValue = max as number;
+    }
 
-    const Event: CustomEvent = {
-      target: {
-        name: `${type}_btn`,
-        value: nextValue,
-      },
-    };
-
-    onChange(Event);
+    e.target.value = nextValue;
+    onChange(e);
   };
 
   useEffect(() => {
@@ -81,16 +75,19 @@ export const CustomInputNumber: FC<CustomInputNumberProps> = ({
 
   const toggleButtonSubscription = useCallback(
     (buttonRef: HTMLButtonElement, type: 'increment' | 'decrement') => {
-      return fromEvent(buttonRef, 'mousedown')
+      return fromEvent<MouseEvent>(buttonRef, 'mousedown')
         .pipe(
-          switchMap(() =>
+          switchMap((e) =>
             timer(0, longPressUpdateFrequencyInMillionSecond).pipe(
+              map(() => e),
               takeUntil(fromEvent(buttonRef, 'mouseup')),
             ),
           ),
         )
         .subscribe({
-          next: () => updateCount(type),
+          next: (e) => {
+            updateCount(e, type);
+          },
         });
     },
     [],
@@ -140,8 +137,9 @@ export const CustomInputNumber: FC<CustomInputNumberProps> = ({
           filter((e) => {
             return e.key === keyType;
           }),
-          switchMap(() =>
+          switchMap((e) =>
             timer(0, longPressUpdateFrequencyInMillionSecond).pipe(
+              map(() => e),
               takeUntil(
                 fromEvent<KeyboardEvent>(inputNumberRef.current!, 'keyup').pipe(
                   filter((e) => e.key === keyType),
@@ -151,8 +149,9 @@ export const CustomInputNumber: FC<CustomInputNumberProps> = ({
           ),
         )
         .subscribe({
-          next: () =>
-            updateCount(keyType === 'ArrowUp' ? 'increment' : 'decrement'),
+          next: (e) => {
+            updateCount(e, keyType === 'ArrowUp' ? 'increment' : 'decrement');
+          },
         });
     };
 
