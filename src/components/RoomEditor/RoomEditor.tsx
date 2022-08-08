@@ -1,6 +1,14 @@
 import React, { FC } from 'react';
 
 import { CustomInputNumber } from '../CustomInputNumber';
+import {
+  Row,
+  RowLabel,
+  RowLabelDescription,
+  RowLabelTitle,
+  Container,
+  Title,
+} from './styles';
 import { RoomEditorProps } from './types';
 
 export const RoomEditor: FC<RoomEditorProps> = ({
@@ -9,10 +17,13 @@ export const RoomEditor: FC<RoomEditorProps> = ({
   onChange,
 }) => {
   return (
-    <div>
-      <h3>{`房間：${Number(room.adult) + Number(room.child)} 人`}</h3>
-      <div style={{ display: 'flex', alignItems: 'center' }}>
-        <p>大人</p>
+    <Container>
+      <Title>{`房間：${Number(room.adult) + Number(room.child)} 人`}</Title>
+      <Row>
+        <RowLabel>
+          <RowLabelTitle>大人</RowLabelTitle>
+          <RowLabelDescription>年齡 20+</RowLabelDescription>
+        </RowLabel>
         <CustomInputNumber
           min={1}
           max={4}
@@ -35,8 +46,8 @@ export const RoomEditor: FC<RoomEditorProps> = ({
             });
           }}
         />
-      </div>
-      <div style={{ display: 'flex' }}>
+      </Row>
+      <Row>
         <p>小孩</p>
         <CustomInputNumber
           min={0}
@@ -60,7 +71,7 @@ export const RoomEditor: FC<RoomEditorProps> = ({
             });
           }}
         />
-      </div>
-    </div>
+      </Row>
+    </Container>
   );
 };

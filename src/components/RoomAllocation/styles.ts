@@ -41,3 +41,9 @@ export const Callout = styled.div<CalloutProps>`
   border-radius: 10px;
   padding: 1em 1.5em;
 `;
+
+export const Container = styled.div`
+  width: 450px;
+  padding: 1em;
+  border: 3px dashed #eee;
+`;

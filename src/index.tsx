@@ -8,11 +8,22 @@ const App = () => {
   return (
     <>
       <GlobalStyles />
-      <RoomAllocation
-        guest={8}
-        room={4}
-        onChange={(results) => console.log('index.js', results)}
-      />
+      <div
+        style={{
+          width: '100%',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          margin: '1em 0',
+          minHeight: '100vh',
+        }}
+      >
+        <RoomAllocation
+          guest={10}
+          room={3}
+          onChange={(results) => console.log('index.js', results)}
+        />
+      </div>
     </>
   );
 };

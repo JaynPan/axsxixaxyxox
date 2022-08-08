@@ -2,7 +2,7 @@ import React, { FC, useEffect, useMemo, useState } from 'react';
 
 import { RoomEditor } from '../RoomEditor';
 import { RoomEditorOnChangeArgs } from '../RoomEditor/types';
-import { Callout } from './styles';
+import { Callout, Container } from './styles';
 import { RoomAllocationProps, Room, CalloutTypeEnum } from './types';
 
 export const RoomAllocation: FC<RoomAllocationProps> = ({
@@ -81,11 +81,11 @@ export const RoomAllocation: FC<RoomAllocationProps> = ({
   }, [room, guest]);
 
   return (
-    <div>
+    <Container>
       <h3>{`住客人數: ${guest}人 / ${room}房`}</h3>
       <Callout
         type={calloutType}
-      >{`尚未分配人數 ${unallocatedCount} 人`}</Callout>
+      >{`尚未分配人數：${unallocatedCount} 人`}</Callout>
       {rooms.map((data) => {
         return (
           <RoomEditor
@@ -96,6 +96,6 @@ export const RoomAllocation: FC<RoomAllocationProps> = ({
           />
         );
       })}
-    </div>
+    </Container>
   );
 };
