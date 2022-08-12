@@ -5,54 +5,62 @@ import React, {
   useRef,
   useMemo,
   useCallback,
+  useState,
 } from 'react';
 import { filter, fromEvent, map, switchMap, takeUntil, timer } from 'rxjs';
 import { AiOutlinePlus, AiOutlineMinus } from 'react-icons/ai';
 
-import { CustomInputNumberProps, CustomEvent } from './types';
+import { CustomInputNumberProps } from './types';
 import { isValueBiggerThanMax, isValueLessThanMin } from './utils';
 import { Button, Input, Container } from './styles';
 
 export const CustomInputNumber: FC<CustomInputNumberProps> = ({
   max,
   min,
-  value,
+  defaultValue = 0,
   name,
   step = 1,
   disabled,
   longPressUpdateFrequencyInMillionSecond = 150,
   onChange,
-  onBlur,
+  onChangeWithOnlyNumber,
 }) => {
   const decrementalButtonRef = useRef<HTMLButtonElement>(null);
   const incrementalButtonRef = useRef<HTMLButtonElement>(null);
   const inputNumberRef = useRef<HTMLInputElement>(null);
-  const currentValueRef = useRef(value);
+  const [count, setCount] = useState<string | number>(defaultValue);
+  const currentValueRef = useRef(count);
 
   const btnDisabledState = useMemo(() => {
     return {
-      incrementBtn: (typeof max === 'number' && value >= max) || !!disabled,
-      decrementBtn: (typeof min === 'number' && value <= min) || !!disabled,
+      incrementBtn: (typeof max === 'number' && count >= max) || !!disabled,
+      decrementBtn: (typeof min === 'number' && count <= min) || !!disabled,
     };
-  }, [max, min, value]);
+  }, [max, min, count]);
 
   const handleInputOnBlur = (e: ChangeEvent<HTMLInputElement>) => {
-    const event: CustomEvent = { ...e };
-    const currentVal = Number(e.target.value);
+    let currentVal = Number(e.target.value);
 
     // before executing onBlur callback function, will modify to a valid input value
     if (isNaN(currentVal)) {
-      event.target.value = min || 0;
+      currentVal = min || 0;
     } else if (isValueBiggerThanMax(max, currentVal)) {
-      event.target.value = max as number;
+      currentVal = max as number;
     } else if (isValueLessThanMin(min, currentVal)) {
-      event.target.value = min as number;
+      currentVal = min as number;
     }
 
-    onBlur(event);
+    setCount(currentVal);
   };
 
-  const updateCount = (e: any, type: 'increment' | 'decrement') => {
+  const handleInputOnChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setCount(e.target.value);
+  };
+
+  const updateCount = (
+    _: MouseEvent | KeyboardEvent,
+    type: 'increment' | 'decrement',
+  ) => {
     const currentVal = Number(currentValueRef.current);
 
     if (isNaN(currentVal)) return;
@@ -66,13 +74,21 @@ export const CustomInputNumber: FC<CustomInputNumberProps> = ({
       nextValue = max as number;
     }
 
-    e.target.value = nextValue;
-    onChange(e);
+    setCount(nextValue);
   };
 
   useEffect(() => {
-    currentValueRef.current = value;
-  }, [value]);
+    const anyInt = /^[-]?[0-9]+$/;
+    if (String(count).match(anyInt) && onChangeWithOnlyNumber) {
+      onChangeWithOnlyNumber(count as number);
+    }
+
+    if (onChange) onChange(String(count).match(anyInt) ? Number(count) : count);
+  }, [count]);
+
+  useEffect(() => {
+    currentValueRef.current = count;
+  }, [count]);
 
   const toggleButtonSubscription = useCallback(
     (buttonRef: HTMLButtonElement, type: 'increment' | 'decrement') => {
@@ -171,9 +187,9 @@ export const CustomInputNumber: FC<CustomInputNumberProps> = ({
       </Button>
       <Input
         ref={inputNumberRef}
-        value={value}
+        value={count}
         name={name}
-        onChange={onChange}
+        onChange={handleInputOnChange}
         onBlur={handleInputOnBlur}
         disabled={disabled}
       />

@@ -1,6 +1,8 @@
-import React, { FC } from 'react';
+import React, { FC, useState } from 'react';
 
 import { CustomInputNumber } from '../CustomInputNumber';
+import { Callout } from '../RoomAllocation/styles';
+import { CalloutTypeEnum } from '../RoomAllocation/types';
 import {
   Row,
   RowLabel,
@@ -16,9 +18,23 @@ export const RoomEditor: FC<RoomEditorProps> = ({
   disabled,
   onChange,
 }) => {
+  const [hasInvalidInput, setHasInvalidInput] = useState(false);
+
+  const handleOnChangeWithOnlyNumber =
+    (type: 'adult' | 'child') => (count: number) => {
+      onChange({ ...room, [type]: count });
+    };
+
+  const handleOnChange = (count: string | number) => {
+    setHasInvalidInput(typeof count === 'string');
+  };
+
   return (
     <Container>
       <Title>{`房間：${Number(room.adult) + Number(room.child)} 人`}</Title>
+      {hasInvalidInput && (
+        <Callout type={CalloutTypeEnum.alert}>欄位必須為數字</Callout>
+      )}
       <Row>
         <RowLabel>
           <RowLabelTitle>大人</RowLabelTitle>
@@ -28,23 +44,11 @@ export const RoomEditor: FC<RoomEditorProps> = ({
           min={1}
           max={4}
           step={1}
-          value={room.adult}
+          defaultValue={room.adult}
           name={`room_${room.index}_adult_input`}
           disabled={disabled}
-          onChange={(e) => {
-            console.log('onChange', e.target);
-            onChange({
-              ...room,
-              adult: e.target.value as number,
-            });
-          }}
-          onBlur={(e) => {
-            console.log('onBlur', e.target);
-            onChange({
-              ...room,
-              adult: e.target.value as number,
-            });
-          }}
+          onChange={handleOnChange}
+          onChangeWithOnlyNumber={handleOnChangeWithOnlyNumber('adult')}
         />
       </Row>
       <Row>
@@ -53,23 +57,11 @@ export const RoomEditor: FC<RoomEditorProps> = ({
           min={0}
           max={4}
           step={1}
-          value={room.child}
+          defaultValue={room.child}
           name={`room_${room.index}_child_input`}
           disabled={disabled}
-          onChange={(e) => {
-            console.log('onChange', e.target);
-            onChange({
-              ...room,
-              child: e.target.value as number,
-            });
-          }}
-          onBlur={(e) => {
-            console.log('onBlur', e.target);
-            onChange({
-              ...room,
-              child: e.target.value as number,
-            });
-          }}
+          onChange={handleOnChange}
+          onChangeWithOnlyNumber={handleOnChangeWithOnlyNumber('child')}
         />
       </Row>
     </Container>

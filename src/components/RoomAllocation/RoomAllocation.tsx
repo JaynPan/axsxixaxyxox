@@ -27,9 +27,6 @@ export const RoomAllocation: FC<RoomAllocationProps> = ({
     });
   };
 
-  // it's allowed to appear NaN or negative number at unallocatedCount
-  // cause user is not restricted to type only number in the input
-  // however, the input value will be adjusted after onBlur event
   const unallocatedCount = useMemo(() => {
     return rooms.reduce(
       (acc, { adult, child }) => acc - Number(adult) - Number(child),
