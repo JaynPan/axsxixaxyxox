@@ -1,31 +1,21 @@
 import React, { FC, useEffect, useMemo, useState } from 'react';
+import { produce } from 'immer';
 
-import { RoomEditor } from '../RoomEditor';
-import { RoomEditorOnChangeArgs } from '../RoomEditor/types';
+import { RoomEditor } from './RoomEditor';
+import { RoomEditorOnChangeArgs } from './RoomEditor/types';
 import { Callout, Container } from './styles';
-import { RoomAllocationProps, Room, CalloutTypeEnum } from './types';
+import { RoomAllocationProps, Room } from './types';
+import { ECalloutVariant } from './enums';
+import { DEFAULT_ROOM_CAPACITY } from './constants';
+import { validateRoomsAdultChildValue } from './validateRoomsAdultChildValue';
+import { initializeRooms } from './utils';
 
 export const RoomAllocation: FC<RoomAllocationProps> = ({
   guest,
   room,
   onChange,
 }) => {
-  const [rooms, setRooms] = useState<Room[]>(
-    Array(room)
-      .fill(0)
-      .map((_, i) => ({ index: i, adult: 1, child: 0 })),
-  );
-
-  const handleOnChange = (roomResult: RoomEditorOnChangeArgs) => {
-    setRooms((prev) => {
-      const { index, child, adult } = roomResult;
-      const newState = [...prev];
-
-      newState[index].child = child;
-      newState[index].adult = adult;
-      return newState;
-    });
-  };
+  const [rooms, setRooms] = useState<Room[]>(initializeRooms(room));
 
   const unallocatedCount = useMemo(() => {
     return rooms.reduce(
@@ -34,65 +24,80 @@ export const RoomAllocation: FC<RoomAllocationProps> = ({
     );
   }, [rooms]);
 
-  const calloutType = useMemo(() => {
-    if (unallocatedCount < 0 || unallocatedCount > guest)
-      return CalloutTypeEnum.alert;
-    if (unallocatedCount === 0) return CalloutTypeEnum.success;
-    return CalloutTypeEnum.info;
+  const calloutVariant = useMemo(() => {
+    if (unallocatedCount < 0 || unallocatedCount > guest) {
+      return ECalloutVariant.ALERT;
+    }
+
+    if (unallocatedCount === 0) {
+      return ECalloutVariant.SUCCESS;
+    }
+
+    return ECalloutVariant.INFO;
   }, [unallocatedCount]);
 
-  // handle onChange callback function to parent component
-  useEffect(() => {
-    if (unallocatedCount < 0) return;
-
-    const positiveIntReg = /^[0-9]+$/;
-    const result = [];
-
-    // prevent negative number sending to the callback function
-    for (const room of rooms) {
-      if (
-        !String(room.adult).match(positiveIntReg) ||
-        !String(room.child).match(positiveIntReg)
-      ) {
-        return;
-      }
-
-      // since e.target.value always return string type
-      // we need to coercion to make sure sending number type
-      result.push({ adult: Number(room.adult), child: Number(room.child) });
-    }
-
-    onChange(result);
-  }, [rooms, unallocatedCount]);
-
-  // check if given a valid props
-  useEffect(() => {
-    // each room can contain maximum 4 people
-    const isGuestOverRoomCapacity = room * 4 < guest;
+  const invalidPropsString = useMemo(() => {
+    const isGuestOverRoomCapacity = room * DEFAULT_ROOM_CAPACITY < guest;
     const isRoomCountOverGuest = room > guest;
-    if (isGuestOverRoomCapacity || isRoomCountOverGuest) {
-      throw new Error(
-        'guest 人數必定在所有 room 總和可容納人數內且最少等於 room 數量。',
-      );
+
+    if (isGuestOverRoomCapacity) {
+      return '客人數超過所有房間可容納，請增加房間數';
     }
+
+    if (isRoomCountOverGuest) {
+      return '房間數多於客人數，請減少房間數';
+    }
+
+    return '';
   }, [room, guest]);
+
+  const handleOnChange = (roomResult: RoomEditorOnChangeArgs) => {
+    setRooms((prev) =>
+      produce(prev, (draft) => {
+        const { index, child, adult } = roomResult;
+
+        draft[index].child = child;
+        draft[index].adult = adult;
+      }),
+    );
+  };
+
+  // send filtered onChange event function to parent component
+  useEffect(() => {
+    if (!validateRoomsAdultChildValue(rooms, unallocatedCount)) return;
+
+    onChange(
+      rooms.map(({ adult, child }) => ({
+        adult: Number(adult),
+        child: Number(child),
+      })),
+    );
+  }, [rooms, unallocatedCount]);
 
   return (
     <Container>
-      <h3>{`住客人數: ${guest}人 / ${room}房`}</h3>
-      <Callout
-        type={calloutType}
-      >{`尚未分配人數：${unallocatedCount} 人`}</Callout>
-      {rooms.map((data) => {
-        return (
-          <RoomEditor
-            key={data.index}
-            room={data}
-            disabled={guest === room}
-            onChange={handleOnChange}
-          />
-        );
-      })}
+      {invalidPropsString.length > 0 ? (
+        <h3>{invalidPropsString}</h3>
+      ) : (
+        <>
+          <h3>{`住客人數: ${guest} 人 / ${room} 房`}</h3>
+
+          <Callout variant={calloutVariant}>
+            {`尚未分配人數：${unallocatedCount} 人`}
+          </Callout>
+
+          {rooms.map((data) => {
+            return (
+              <RoomEditor
+                key={data.index}
+                room={data}
+                disabled={guest === room}
+                onChange={handleOnChange}
+              />
+            );
+          })}
+        </>
+      )}
     </Container>
   );
 };

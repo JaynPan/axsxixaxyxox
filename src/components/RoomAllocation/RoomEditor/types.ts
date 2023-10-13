@@ -1,4 +1,4 @@
-import { Room } from '../RoomAllocation/types';
+import { Room } from '../types';
 
 export type RoomEditorProps = {
   room: Room;
@@ -8,6 +8,6 @@ export type RoomEditorProps = {
 
 export type RoomEditorOnChangeArgs = {
   index: number;
-  adult: number;
-  child: number;
+  adult: string; // * e.target.value will be number string in <input type="number" />
+  child: string;
 };

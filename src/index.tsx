@@ -1,5 +1,5 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 
 import { RoomAllocation } from './components/RoomAllocation';
 import GlobalStyles from './GlobalStyles';
@@ -21,11 +21,18 @@ const App = () => {
         <RoomAllocation
           guest={10}
           room={3}
-          onChange={(results) => console.log('index.js', results)}
+          onChange={(result) => console.log('index.js', JSON.stringify(result))}
         />
       </div>
     </>
   );
 };
 
-ReactDOM.render(<App />, document.getElementById('root'));
+const container = document.getElementById('root');
+
+if (container) {
+  const root = createRoot(container);
+  root.render(<App />);
+} else {
+  console.error('container not found in the document.');
+}

@@ -5,6 +5,27 @@ export const Container = styled.div`
   display: flex;
 `;
 
+export const NativeInputNumber = styled.input`
+  /* hide default Arrow buttons */
+  /* Firefox */
+  -moz-appearance: textfield;
+  /* Chrome, Safari, Edge, Opera */
+  &::-webkit-outer-spin-button,
+  &::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  width: 48px;
+  height: 48px;
+  font-size: 16px;
+  text-align: center;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  margin: 0 8px;
+  cursor: ${({ disabled }) => (disabled ? 'not-allowed' : 'auto')};
+`;
+
 export const Button = styled.button`
   width: 48px;
   height: 48px;
@@ -21,14 +42,4 @@ export const Button = styled.button`
   &:hover {
     background-color: rgb(240, 253, 255);
   }
-`;
-
-export const Input = styled.input`
-  width: 48px;
-  height: 48px;
-  font-size: 16px;
-  text-align: center;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  margin: 0 8px;
 `;

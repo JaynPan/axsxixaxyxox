@@ -1,43 +1,45 @@
 import styled from 'styled-components';
-import { CalloutProps, CalloutTypeEnum } from './types';
 
-const colorSwitcher = (type: CalloutProps['type']): string => {
-  switch (type) {
-    case CalloutTypeEnum.info:
+import { ECalloutVariant } from './enums';
+import { CalloutProps } from './types';
+
+const colorSwitcher = (variant: ECalloutVariant): string => {
+  switch (variant) {
+    case ECalloutVariant.INFO:
       return '#0e566c';
-    case CalloutTypeEnum.alert:
+    case ECalloutVariant.ALERT:
       return '#9f3a38';
-    case CalloutTypeEnum.success:
+    case ECalloutVariant.SUCCESS:
       return '#2c662d';
   }
 };
 
-const bgColorSwitcher = (type: CalloutProps['type']): string => {
-  switch (type) {
-    case CalloutTypeEnum.info:
+const bgColorSwitcher = (variant: ECalloutVariant): string => {
+  switch (variant) {
+    case ECalloutVariant.INFO:
       return '#f8ffff';
-    case CalloutTypeEnum.alert:
+    case ECalloutVariant.ALERT:
       return '#fff6f6';
-    case CalloutTypeEnum.success:
+    case ECalloutVariant.SUCCESS:
       return '#fcfff5';
   }
 };
 
-const borderColorSwitcher = (type: CalloutProps['type']): string => {
+const borderColorSwitcher = (type: ECalloutVariant): string => {
   switch (type) {
-    case CalloutTypeEnum.info:
+    case ECalloutVariant.INFO:
       return '#9ac5d3';
-    case CalloutTypeEnum.alert:
+    case ECalloutVariant.ALERT:
       return '#eab2b1';
-    case CalloutTypeEnum.success:
+    case ECalloutVariant.SUCCESS:
       return '#cfdfa9';
   }
 };
 
 export const Callout = styled.div<CalloutProps>`
-  background-color: ${({ type }) => bgColorSwitcher(type)};
-  color: ${({ type }) => colorSwitcher(type)};
-  border: 2px solid ${({ type }) => borderColorSwitcher(type)};
+  background-color: ${({ variant }) => bgColorSwitcher(variant)};
+  color: ${({ variant }) => colorSwitcher(variant)};
+  border: 2px solid ${({ variant }) => borderColorSwitcher(variant)};
   border-radius: 10px;
   padding: 1em 1.5em;
 `;

@@ -1,11 +1,13 @@
+import { FormEvent } from 'react';
+
 export type CustomInputNumberProps = {
-  min?: number;
-  max?: number;
+  min: number;
+  max: number;
+  name: string;
+
   step?: number;
-  name?: string;
-  defaultValue?: number;
-  longPressUpdateFrequencyInMillionSecond?: number;
+  defaultValue: number;
   disabled?: boolean;
-  onChangeWithOnlyNumber?: (count: number) => void;
-  onChange?: (count: number | string) => void;
+  onBlur?: (event: FormEvent<HTMLInputElement>) => void;
+  onChange?: (event: FormEvent<HTMLInputElement>) => void;
 };

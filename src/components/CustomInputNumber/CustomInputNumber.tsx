@@ -1,202 +1,86 @@
-import React, {
-  FC,
-  ChangeEvent,
-  useEffect,
-  useRef,
-  useMemo,
-  useCallback,
-  useState,
-} from 'react';
-import { filter, fromEvent, map, switchMap, takeUntil, timer } from 'rxjs';
+import React, { FC, useRef } from 'react';
 import { AiOutlinePlus, AiOutlineMinus } from 'react-icons/ai';
 
+import { NativeInputNumber, Button, Container } from './styles';
 import { CustomInputNumberProps } from './types';
-import { isValueBiggerThanMax, isValueLessThanMin } from './utils';
-import { Button, Input, Container } from './styles';
 
 export const CustomInputNumber: FC<CustomInputNumberProps> = ({
-  max,
   min,
-  defaultValue = 0,
-  name,
+  max,
   step = 1,
+  defaultValue,
+  name,
   disabled,
-  longPressUpdateFrequencyInMillionSecond = 150,
   onChange,
-  onChangeWithOnlyNumber,
+  onBlur,
 }) => {
-  const decrementalButtonRef = useRef<HTMLButtonElement>(null);
-  const incrementalButtonRef = useRef<HTMLButtonElement>(null);
-  const inputNumberRef = useRef<HTMLInputElement>(null);
-  const [count, setCount] = useState<string | number>(defaultValue);
-  const currentValueRef = useRef(count);
+  const nativeInputNumberRef = useRef<HTMLInputElement>(null);
 
-  const btnDisabledState = useMemo(() => {
-    return {
-      incrementBtn: (typeof max === 'number' && count >= max) || !!disabled,
-      decrementBtn: (typeof min === 'number' && count <= min) || !!disabled,
-    };
-  }, [max, min, count]);
+  const bubbleUpOnChangeEvent = () => {
+    if (onChange) {
+      const event = new Event('input', { bubbles: true });
 
-  const handleInputOnBlur = (e: ChangeEvent<HTMLInputElement>) => {
-    let currentVal = Number(e.target.value);
-
-    // before executing onBlur callback function, will modify to a valid input value
-    if (isNaN(currentVal)) {
-      currentVal = min || 0;
-    } else if (isValueBiggerThanMax(max, currentVal)) {
-      currentVal = max as number;
-    } else if (isValueLessThanMin(min, currentVal)) {
-      currentVal = min as number;
+      nativeInputNumberRef.current?.dispatchEvent(event);
     }
-
-    setCount(currentVal);
   };
 
-  const handleInputOnChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setCount(e.target.value);
+  const handleDecrementButtonClick = () => {
+    nativeInputNumberRef.current?.stepDown();
+    bubbleUpOnChangeEvent();
   };
 
-  const updateCount = (
-    _: MouseEvent | KeyboardEvent,
-    type: 'increment' | 'decrement',
-  ) => {
-    const currentVal = Number(currentValueRef.current);
-
-    if (isNaN(currentVal)) return;
-
-    let nextValue =
-      type === 'increment' ? currentVal + step : currentVal - step;
-
-    if (isValueLessThanMin(min, currentVal)) {
-      nextValue = min as number;
-    } else if (isValueBiggerThanMax(max, currentVal)) {
-      nextValue = max as number;
-    }
-
-    setCount(nextValue);
+  const handleIncrementButtonClick = () => {
+    nativeInputNumberRef.current?.stepUp();
+    bubbleUpOnChangeEvent();
   };
 
-  useEffect(() => {
-    const anyInt = /^[-]?[0-9]+$/;
-    if (String(count).match(anyInt) && onChangeWithOnlyNumber) {
-      onChangeWithOnlyNumber(count as number);
+  const handleOnBlur: React.FocusEventHandler<HTMLInputElement> = (e) => {
+    const inputValue = nativeInputNumberRef.current?.value;
+    const inValidInputValue = !inputValue;
+    const valueOutOfRange =
+      Number(inputValue) > max || Number(inputValue) < min;
+
+    // change to default value when input is invalid
+    if (
+      nativeInputNumberRef.current &&
+      (inValidInputValue || valueOutOfRange)
+    ) {
+      nativeInputNumberRef.current.value = String(defaultValue);
     }
 
-    if (onChange) onChange(String(count).match(anyInt) ? Number(count) : count);
-  }, [count]);
-
-  useEffect(() => {
-    currentValueRef.current = count;
-  }, [count]);
-
-  const toggleButtonSubscription = useCallback(
-    (buttonRef: HTMLButtonElement, type: 'increment' | 'decrement') => {
-      return fromEvent<MouseEvent>(buttonRef, 'mousedown')
-        .pipe(
-          switchMap((e) =>
-            timer(0, longPressUpdateFrequencyInMillionSecond).pipe(
-              map(() => e),
-              takeUntil(fromEvent(buttonRef, 'mouseup')),
-            ),
-          ),
-        )
-        .subscribe({
-          next: (e) => {
-            updateCount(e, type);
-          },
-        });
-    },
-    [],
-  );
-
-  // Handle increment button event
-  useEffect(() => {
-    if (!incrementalButtonRef.current) {
-      throw new Error('increment button element not found');
-    }
-
-    const subscription = toggleButtonSubscription(
-      incrementalButtonRef.current,
-      'increment',
-    );
-
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, [btnDisabledState.incrementBtn]);
-
-  // Handle decrement button event
-  useEffect(() => {
-    if (!decrementalButtonRef.current) {
-      throw new Error('decrement button element not found');
-    }
-
-    const subscription = toggleButtonSubscription(
-      decrementalButtonRef.current,
-      'decrement',
-    );
-
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, [btnDisabledState.decrementBtn]);
-
-  // handle input ArrowUp/ArrowDown key event
-  useEffect(() => {
-    const keySubscription = (keyType: 'ArrowUp' | 'ArrowDown') => {
-      if (!inputNumberRef.current) {
-        throw new Error('input not found');
-      }
-
-      fromEvent<KeyboardEvent>(inputNumberRef.current, 'keydown')
-        .pipe(
-          filter((e) => {
-            return e.key === keyType;
-          }),
-          switchMap((e) =>
-            timer(0, longPressUpdateFrequencyInMillionSecond).pipe(
-              map(() => e),
-              takeUntil(
-                fromEvent<KeyboardEvent>(inputNumberRef.current!, 'keyup').pipe(
-                  filter((e) => e.key === keyType),
-                ),
-              ),
-            ),
-          ),
-        )
-        .subscribe({
-          next: (e) => {
-            updateCount(e, keyType === 'ArrowUp' ? 'increment' : 'decrement');
-          },
-        });
-    };
-
-    keySubscription('ArrowDown');
-    keySubscription('ArrowUp');
-  }, []);
+    if (onBlur) onBlur(e);
+    if (onChange) onChange(e);
+  };
 
   return (
     <Container>
       <Button
-        name={`${name}_decrement_button`}
-        ref={decrementalButtonRef}
-        disabled={btnDisabledState.decrementBtn}
+        onClick={handleDecrementButtonClick}
+        disabled={disabled}
+        data-testid={`${name}:decrementButton`}
       >
         <AiOutlineMinus size={26} />
       </Button>
-      <Input
-        ref={inputNumberRef}
-        value={count}
+
+      <NativeInputNumber
+        ref={nativeInputNumberRef}
+        type="number"
+        inputMode="numeric"
+        defaultValue={defaultValue}
+        step={step}
+        min={min}
+        max={max}
         name={name}
-        onChange={handleInputOnChange}
-        onBlur={handleInputOnBlur}
+        onChange={onChange && onChange}
+        onBlur={handleOnBlur}
         disabled={disabled}
+        data-testid={`${name}:input`}
       />
+
       <Button
-        name={`${name}_increment_button`}
-        ref={incrementalButtonRef}
-        disabled={btnDisabledState.incrementBtn}
+        onClick={handleIncrementButtonClick}
+        disabled={disabled}
+        data-testid={`${name}:incrementButton`}
       >
         <AiOutlinePlus size={26} />
       </Button>

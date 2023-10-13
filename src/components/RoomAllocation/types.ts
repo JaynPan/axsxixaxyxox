@@ -1,3 +1,5 @@
+import { ECalloutVariant } from './enums';
+
 export type OnChangeRoomAllocationResult = { adult: number; child: number };
 
 export type RoomAllocationProps = {
@@ -6,10 +8,5 @@ export type RoomAllocationProps = {
   onChange: (results: OnChangeRoomAllocationResult[]) => void;
 };
 
-export type Room = { index: number; adult: number; child: number };
-export enum CalloutTypeEnum {
-  alert,
-  info,
-  success,
-}
-export type CalloutProps = { type: CalloutTypeEnum };
+export type Room = { index: number; adult: string; child: string };
+export type CalloutProps = { variant: ECalloutVariant };
