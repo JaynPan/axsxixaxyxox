@@ -17,11 +17,9 @@ export const CustomInputNumber: FC<CustomInputNumberProps> = ({
   const nativeInputNumberRef = useRef<HTMLInputElement>(null);
 
   const bubbleUpOnChangeEvent = () => {
-    if (onChange) {
-      const event = new Event('input', { bubbles: true });
+    const event = new Event('input', { bubbles: true });
 
-      nativeInputNumberRef.current?.dispatchEvent(event);
-    }
+    nativeInputNumberRef.current?.dispatchEvent(event);
   };
 
   const handleDecrementButtonClick = () => {
