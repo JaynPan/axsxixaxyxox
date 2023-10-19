@@ -93,7 +93,8 @@ export const RoomAllocation: FC<RoomAllocationProps> = ({
                 room={data}
                 disabledAllInputs={guest === room}
                 disabledIncrementButton={
-                  Number(data.adult) + Number(data.child) >= 4
+                  Number(data.adult) + Number(data.child) >= 4 ||
+                  unallocatedCount === 0
                 }
                 onChange={handleOnChange}
               />
