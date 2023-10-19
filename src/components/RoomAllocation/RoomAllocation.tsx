@@ -91,7 +91,10 @@ export const RoomAllocation: FC<RoomAllocationProps> = ({
               <RoomEditor
                 key={data.index}
                 room={data}
-                disabled={guest === room}
+                disabledAllInputs={guest === room}
+                disabledIncrementButton={
+                  Number(data.adult) + Number(data.child) >= 4
+                }
                 onChange={handleOnChange}
               />
             );

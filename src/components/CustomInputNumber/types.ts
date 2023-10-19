@@ -7,7 +7,10 @@ export type CustomInputNumberProps = {
 
   step?: number;
   defaultValue: number;
-  disabled?: boolean;
+  disabledAllInputs?: boolean;
+  disabledIncrementButton?: boolean;
+  disabledDecrementButton?: boolean;
+  disabledInput?: boolean;
   onBlur?: (event: FormEvent<HTMLInputElement>) => void;
   onChange?: (event: FormEvent<HTMLInputElement>) => void;
 };

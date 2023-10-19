@@ -3,7 +3,8 @@ import { Room } from '../types';
 export type RoomEditorProps = {
   room: Room;
   onChange: (args: RoomEditorOnChangeArgs) => void;
-  disabled?: boolean;
+  disabledAllInputs?: boolean;
+  disabledIncrementButton?: boolean;
 };
 
 export type RoomEditorOnChangeArgs = {

@@ -19,7 +19,8 @@ import { RoomEditorProps } from './types';
 
 export const RoomEditor: FC<RoomEditorProps> = ({
   room,
-  disabled,
+  disabledAllInputs,
+  disabledIncrementButton,
   onChange,
 }) => {
   const handleOnChangeHandler =
@@ -50,7 +51,8 @@ export const RoomEditor: FC<RoomEditorProps> = ({
           max={DEFAULT_ROOM_CAPACITY}
           name={`room_${room.index}_adult`}
           defaultValue={1}
-          disabled={disabled}
+          disabledAllInputs={disabledAllInputs}
+          disabledIncrementButton={disabledIncrementButton}
           onChange={handleOnChangeHandler(EAgeCategory.ADULT)}
           onBlur={handleRoomOnBlur}
         />
@@ -66,7 +68,8 @@ export const RoomEditor: FC<RoomEditorProps> = ({
           max={DEFAULT_ROOM_CAPACITY}
           name={`room_${room.index}_child`}
           defaultValue={0}
-          disabled={disabled}
+          disabledAllInputs={disabledAllInputs}
+          disabledIncrementButton={disabledIncrementButton}
           onChange={handleOnChangeHandler(EAgeCategory.CHILD)}
           onBlur={handleRoomOnBlur}
         />

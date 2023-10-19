@@ -22,16 +22,20 @@ describe('CustomInputNumber component', () => {
     const incrementButton = getByTestId('test:incrementButton');
     const decrementButton = getByTestId('test:decrementButton');
 
-    fireEvent.click(incrementButton);
+    fireEvent.mouseDown(incrementButton);
+    fireEvent.mouseUp(incrementButton);
     expect(input).toHaveValue(1);
 
-    fireEvent.click(incrementButton);
+    fireEvent.mouseDown(incrementButton);
+    fireEvent.mouseUp(incrementButton);
     expect(input).toHaveValue(2);
 
-    fireEvent.click(decrementButton);
+    fireEvent.mouseDown(decrementButton);
+    fireEvent.mouseUp(decrementButton);
     expect(input).toHaveValue(1);
 
-    fireEvent.click(decrementButton);
+    fireEvent.mouseDown(decrementButton);
+    fireEvent.mouseUp(decrementButton);
     expect(input).toHaveValue(0);
   });
 
@@ -81,16 +85,19 @@ describe('CustomInputNumber component', () => {
     const incrementButton = getByTestId('test:incrementButton');
     const decrementButton = getByTestId('test:decrementButton');
 
-    fireEvent.click(incrementButton);
+    fireEvent.mouseDown(incrementButton);
+    fireEvent.mouseUp(incrementButton);
 
     // * if (current value % step !== 0), it will increment to the closest value that is divisible by step + min
     // so in this case, current value is 7, min: 1 -> click increment button -> value become step(4 * 2) + min(1)
     expect(input).toHaveValue(9);
 
-    fireEvent.click(incrementButton);
+    fireEvent.mouseDown(incrementButton);
+    fireEvent.mouseUp(incrementButton);
     expect(input).toHaveValue(13);
 
-    fireEvent.click(decrementButton);
+    fireEvent.mouseDown(decrementButton);
+    fireEvent.mouseUp(decrementButton);
     expect(input).toHaveValue(9);
   });
 
@@ -100,7 +107,7 @@ describe('CustomInputNumber component', () => {
         defaultValue={3}
         min={0}
         max={100}
-        disabled
+        disabledAllInputs
         name="test"
       />,
     );

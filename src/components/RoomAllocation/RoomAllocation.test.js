@@ -130,7 +130,8 @@ describe('RoomAllocation component', () => {
       `room_${roomIdx}_adult:incrementButton`,
     );
 
-    fireEvent.click(firstRoomAdultIncrementButton);
+    fireEvent.mouseDown(firstRoomAdultIncrementButton);
+    fireEvent.mouseUp(firstRoomAdultIncrementButton);
 
     const expectedRoomState1 = [
       { adult: 2, child: 0 },
@@ -150,7 +151,8 @@ describe('RoomAllocation component', () => {
       `room_${roomIdx}_child:incrementButton`,
     );
 
-    fireEvent.click(thirdRoomChildIncrementButton);
+    fireEvent.mouseDown(thirdRoomChildIncrementButton);
+    fireEvent.mouseUp(thirdRoomChildIncrementButton);
 
     const expectedRoomState2 = [
       { adult: 2, child: 0 },
@@ -214,7 +216,8 @@ describe('RoomAllocation component', () => {
     clickMultipleTimes(firstRoomAdultIncrementButton, 2);
 
     // Perform the additional click
-    fireEvent.click(firstRoomAdultIncrementButton);
+    fireEvent.mouseDown(firstRoomAdultIncrementButton);
+    fireEvent.mouseUp(firstRoomAdultIncrementButton);
 
     // Ensure that the onChange event has not been triggered for the third click
     // onChange will also trigger in initialize stage, thus 2 + 1

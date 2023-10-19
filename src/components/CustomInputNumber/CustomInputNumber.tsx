@@ -1,4 +1,4 @@
-import React, { FC, useRef } from 'react';
+import React, { FC, useEffect, useRef } from 'react';
 import { AiOutlinePlus, AiOutlineMinus } from 'react-icons/ai';
 
 import { NativeInputNumber, Button, Container } from './styles';
@@ -10,11 +10,15 @@ export const CustomInputNumber: FC<CustomInputNumberProps> = ({
   step = 1,
   defaultValue,
   name,
-  disabled,
+  disabledAllInputs,
+  disabledIncrementButton,
+  disabledDecrementButton,
+  disabledInput,
   onChange,
   onBlur,
 }) => {
   const nativeInputNumberRef = useRef<HTMLInputElement>(null);
+  const intervalRef = useRef<number | null>(null);
 
   const bubbleUpOnChangeEvent = () => {
     const event = new Event('input', { bubbles: true });
@@ -27,9 +31,26 @@ export const CustomInputNumber: FC<CustomInputNumberProps> = ({
     bubbleUpOnChangeEvent();
   };
 
+  const startDecrementing = () => {
+    handleDecrementButtonClick();
+    intervalRef.current = window.setInterval(handleDecrementButtonClick, 200);
+  };
+
   const handleIncrementButtonClick = () => {
     nativeInputNumberRef.current?.stepUp();
     bubbleUpOnChangeEvent();
+  };
+
+  const startIncrementing = () => {
+    handleIncrementButtonClick();
+    intervalRef.current = window.setInterval(handleIncrementButtonClick, 200);
+  };
+
+  const stopChangingValue = () => {
+    if (intervalRef.current) {
+      window.clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
   };
 
   const handleOnBlur: React.FocusEventHandler<HTMLInputElement> = (e) => {
@@ -50,12 +71,24 @@ export const CustomInputNumber: FC<CustomInputNumberProps> = ({
     if (onChange) onChange(e);
   };
 
+  useEffect(() => {
+    if (
+      disabledAllInputs ||
+      disabledIncrementButton ||
+      disabledDecrementButton
+    ) {
+      stopChangingValue();
+    }
+  }, [disabledAllInputs, disabledIncrementButton, disabledDecrementButton]);
+
   return (
     <Container>
       <Button
-        onClick={handleDecrementButtonClick}
-        disabled={disabled}
+        disabled={disabledAllInputs || disabledDecrementButton}
         data-testid={`${name}:decrementButton`}
+        onMouseDown={startDecrementing}
+        onMouseUp={stopChangingValue}
+        onMouseLeave={stopChangingValue}
       >
         <AiOutlineMinus size={26} />
       </Button>
@@ -71,14 +104,16 @@ export const CustomInputNumber: FC<CustomInputNumberProps> = ({
         name={name}
         onChange={onChange && onChange}
         onBlur={handleOnBlur}
-        disabled={disabled}
+        disabled={disabledAllInputs || disabledInput}
         data-testid={`${name}:input`}
       />
 
       <Button
-        onClick={handleIncrementButtonClick}
-        disabled={disabled}
+        disabled={disabledAllInputs || disabledIncrementButton}
         data-testid={`${name}:incrementButton`}
+        onMouseDown={startIncrementing}
+        onMouseUp={stopChangingValue}
+        onMouseLeave={stopChangingValue}
       >
         <AiOutlinePlus size={26} />
       </Button>
